@@ -4,15 +4,33 @@ export default function handler(req, res) {
         return;
     }
 
-    const body = JSON.parse(req.body);
+    // const body = JSON.parse(req.body.prompt);
+    const body = req.body;
 
-    fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+    const data = {
+        prompt: body.prompt,
+        temperature: 0.5,
+        max_tokens: 64,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+    };
+
+    const response = fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
         },
         body: JSON.stringify(data),
+    });
+
+    response.then(res => res.json())
+    .then(json => {
+        res.status(200).json(json);
+    }
+    ).catch(err => {
+        res.status(500).json({ message: err.message });
     });
 }
   
