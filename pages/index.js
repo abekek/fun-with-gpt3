@@ -16,8 +16,8 @@ export default function Home() {
           Fun with GPT-3
         </h1>
 
-        <form className={styles.form} action="/send-data-here" method="post">
-          <h3 for="prompt_text">Enter prompt</h3>
+        <form className={styles.form} action="api/gpt3" method="post">
+          <h3 type="prompt_text">Enter prompt</h3>
           <textarea contentEditable={true} placeholder="Enter your prompt..." type="text" id="prompt" name="prompt" size="50" required />
           <button type="submit">Submit</button>
         </form>
