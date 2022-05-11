@@ -12,6 +12,14 @@
   align-items: center;
 }
 
+.form {
+  margin: 0 auto;
+  width: 60%;
+  height: 400px;
+  /* Form outline */
+  padding: 1em;
+}
+
 .footer {
   display: flex;
   flex: 1;
