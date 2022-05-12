@@ -2,19 +2,45 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import React from 'react';
+import Card from '../components/Card';
 
 function Home({initialProps}) {
 
   const [prompt, setPrompt] = React.useState();
 
-  function handleSubmit() {
-    e.preventDefault();
-    // getServerSideProps(e.target.value);
-    callAPI(prompt);
-  }
-
-  // const updatePrompt = e => setState({prompt: e.target.value});
   const updatePrompt = e => setPrompt(e.target.value);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    // console.log(prompt);
+
+    // const data = {
+    //   prompt: prompt,
+    //   temperature: 0.5,
+    //   max_tokens: 64,
+    //   top_p: 1.0,
+    //   frequency_penalty: 0.0,
+    //   presence_penalty: 0.0,
+    // };
+
+    // const response = fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+    //   },
+    //   body: JSON.stringify(data),
+    // });
+
+    // response.then(res => res.json())
+    // .then(json => {
+    //   console.log(json);
+    // }
+    // ).catch(err => {
+    //   console.log(err);
+    // }
+    // );
+  }
 
   return (
     <div className={styles.container}>
@@ -29,7 +55,7 @@ function Home({initialProps}) {
           Fun with GPT-3
         </h1>
 
-        <form className={styles.form} onSubmit={handleSubmit} method="post">
+        <form className={styles.form} onSubmit={handleSubmit}>
           <h3 type="prompt_text">Enter prompt</h3>
           <textarea 
               contentEditable={true}
@@ -42,90 +68,46 @@ function Home({initialProps}) {
           <button type="submit">Submit</button>
         </form>
 
-        <p>{initialProps.choices[0].text}</p>
-
-        {console.log(initialProps.choices[0].text)}
-
-        {/* <div className="cards" id="cards">
+        <div className="cards" id="cards">
             {initialProps.map((card) => (
-                <Card key={card.id} prompt={card.prompt} />
+                <Card key={card[0]} prompt={card[1]} answer={card[2]} />
             ))}
-        </div> */}
+        </div>
       </main>
     </div>
   )
 }
 
 export async function getStaticProps() {
-  const data = {
-    prompt: 'What is the capital of the United States?',
-    temperature: 0.5,
-    max_tokens: 64,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
+  const initialProps = [];
+  const prompts = ['What is the capital of the United States?',
+              'What is the meaning of life?',
+              'How to calculate the area of a circle?'];
 
-  const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-    },
-    body: JSON.stringify(data),
-  });
+  for (let i = 0; i < 3; i++) {
+    const data = {
+      prompt: prompts[i],
+      temperature: 0.5,
+      max_tokens: 64,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+    };
 
-  const initialProps = await response.json();
+    const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const res = await response.json();
+    initialProps.push([res.id, data.prompt, res.choices[0].text]);
+  }
 
   return {props: {initialProps}}
 }
-
-export async function callAPI(prompt) {
-  const data = {
-    prompt: prompt,
-    temperature: 0.5,
-    max_tokens: 64,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
-
-  const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await response.json();
-  return {generatedText: {json}};
-}
-
-// export async function getServerSideProps({text}) {
-//   const data = {
-//     prompt: text,
-//     temperature: 0.5,
-//     max_tokens: 64,
-//     top_p: 1.0,
-//     frequency_penalty: 0.0,
-//     presence_penalty: 0.0,
-//   };
-
-//   const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-//     },
-//     body: JSON.stringify(data),
-//   });
-
-//   const result = await response.json()
-
-//   // Pass data to the page via props
-//   return { props: { result, text } }
-// }
 
 export default Home;
