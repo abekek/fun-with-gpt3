@@ -3,44 +3,47 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import React from 'react';
 import Card from '../components/Card';
+import { useRouter } from 'next/router';
 
 function Home({initialProps}) {
-
-  const [prompt, setPrompt] = React.useState();
-
+  const router = useRouter();
+  const [newPrompt, setPrompt] = React.useState();
+  const [results, setResults] = React.useState(initialProps);
   const updatePrompt = e => setPrompt(e.target.value);
 
   function handleSubmit(e) {
     e.preventDefault();
-    // console.log(prompt);
-
-    // const data = {
-    //   prompt: prompt,
-    //   temperature: 0.5,
-    //   max_tokens: 64,
-    //   top_p: 1.0,
-    //   frequency_penalty: 0.0,
-    //   presence_penalty: 0.0,
-    // };
-
-    // const response = fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-
-    // response.then(res => res.json())
-    // .then(json => {
-    //   console.log(json);
-    // }
-    // ).catch(err => {
-    //   console.log(err);
-    // }
-    // );
+    console.log(newPrompt);
+    callAPI();
   }
+
+  const callAPI = async () => {
+    const data = {
+      prompt: newPrompt,
+      temperature: 0.5,
+      max_tokens: 64,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+    };
+
+    const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    response.then(res => res.json())
+    .then(newData => {
+      return setResults([newData.id, data.prompt, newData.choices[0].text]);
+    }
+    ).catch(err => {
+      console.log(err);
+    });
+  };
 
   return (
     <div className={styles.container}>
@@ -60,7 +63,7 @@ function Home({initialProps}) {
           <textarea 
               contentEditable={true}
               onChange={updatePrompt}
-              value={prompt}
+              value={newPrompt}
               suppressContentEditableWarning={true}
               placeholder="Enter your prompt..." 
               type="text" id="prompt" name="prompt" 
@@ -69,7 +72,7 @@ function Home({initialProps}) {
         </form>
 
         <div className="cards" id="cards">
-            {initialProps.map((card) => (
+            {results.map((card) => (
                 <Card key={card[0]} prompt={card[1]} answer={card[2]} />
             ))}
         </div>
@@ -78,13 +81,13 @@ function Home({initialProps}) {
   )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const initialProps = [];
-  const prompts = ['What is the capital of the United States?',
+  var prompts = ['What is the capital of the United States?',
               'What is the meaning of life?',
               'How to calculate the area of a circle?'];
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < prompts.length; i++) {
     const data = {
       prompt: prompts[i],
       temperature: 0.5,
