@@ -1,8 +1,21 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import React from 'react';
 
-export default function Home() {
+function Home({initialProps}) {
+
+  const [prompt, setPrompt] = React.useState();
+
+  function handleSubmit() {
+    e.preventDefault();
+    // getServerSideProps(e.target.value);
+    callAPI(prompt);
+  }
+
+  // const updatePrompt = e => setState({prompt: e.target.value});
+  const updatePrompt = e => setPrompt(e.target.value);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -16,12 +29,103 @@ export default function Home() {
           Fun with GPT-3
         </h1>
 
-        <form className={styles.form} action="api/gpt3" method="post">
+        <form className={styles.form} onSubmit={handleSubmit} method="post">
           <h3 type="prompt_text">Enter prompt</h3>
-          <textarea contentEditable={true} placeholder="Enter your prompt..." type="text" id="prompt" name="prompt" size="50" required />
+          <textarea 
+              contentEditable={true}
+              onChange={updatePrompt}
+              value={prompt}
+              suppressContentEditableWarning={true}
+              placeholder="Enter your prompt..." 
+              type="text" id="prompt" name="prompt" 
+              size="50" required />
           <button type="submit">Submit</button>
         </form>
+
+        <p>{initialProps.choices[0].text}</p>
+
+        {console.log(initialProps.choices[0].text)}
+
+        {/* <div className="cards" id="cards">
+            {initialProps.map((card) => (
+                <Card key={card.id} prompt={card.prompt} />
+            ))}
+        </div> */}
       </main>
     </div>
   )
 }
+
+export async function getStaticProps() {
+  const data = {
+    prompt: 'What is the capital of the United States?',
+    temperature: 0.5,
+    max_tokens: 64,
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+  };
+
+  const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const initialProps = await response.json();
+
+  return {props: {initialProps}}
+}
+
+export async function callAPI(prompt) {
+  const data = {
+    prompt: prompt,
+    temperature: 0.5,
+    max_tokens: 64,
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+  };
+
+  const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await response.json();
+  return {generatedText: {json}};
+}
+
+// export async function getServerSideProps({text}) {
+//   const data = {
+//     prompt: text,
+//     temperature: 0.5,
+//     max_tokens: 64,
+//     top_p: 1.0,
+//     frequency_penalty: 0.0,
+//     presence_penalty: 0.0,
+//   };
+
+//   const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+//     },
+//     body: JSON.stringify(data),
+//   });
+
+//   const result = await response.json()
+
+//   // Pass data to the page via props
+//   return { props: { result, text } }
+// }
+
+export default Home;

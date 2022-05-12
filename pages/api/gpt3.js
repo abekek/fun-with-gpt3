@@ -4,7 +4,6 @@ export default function handler(req, res) {
         return;
     }
 
-    // const body = JSON.parse(req.body.prompt);
     const body = req.body;
 
     const data = {
