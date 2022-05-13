@@ -27,6 +27,7 @@ export default function handler(req, res) {
     response.then(res => res.json())
     .then(json => {
         res.status(200).json(json);
+        // return {props: {initialProps: [json.id, data.prompt, json.choices[0].text]}};
     }
     ).catch(err => {
         res.status(500).json({ message: err.message });

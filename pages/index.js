@@ -4,46 +4,26 @@ import styles from '../styles/Home.module.css'
 import React from 'react';
 import Card from '../components/Card';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 function Home({initialProps}) {
   const router = useRouter();
   const [newPrompt, setPrompt] = React.useState();
   const [results, setResults] = React.useState(initialProps);
+  // const [isLoading, setIsLoading] = React.useState(false)
   const updatePrompt = e => setPrompt(e.target.value);
 
   function handleSubmit(e) {
     e.preventDefault();
     console.log(newPrompt);
-    callAPI();
+    // callAPI();
+    // initialProps.push(['evnecjwj4r32r23r32', newPrompt, 'hello']);
+    refreshData();
   }
 
-  const callAPI = async () => {
-    const data = {
-      prompt: newPrompt,
-      temperature: 0.5,
-      max_tokens: 64,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-    };
-
-    const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-      },
-      body: JSON.stringify(data),
-    });
-
-    response.then(res => res.json())
-    .then(newData => {
-      return setResults([newData.id, data.prompt, newData.choices[0].text]);
-    }
-    ).catch(err => {
-      console.log(err);
-    });
-  };
+  const refreshData = () => {
+    router.replace('/?prompt='+newPrompt);
+  }
 
   return (
     <div className={styles.container}>
@@ -72,7 +52,7 @@ function Home({initialProps}) {
         </form>
 
         <div className="cards" id="cards">
-            {results.map((card) => (
+            {initialProps.map((card) => (
                 <Card key={card[0]} prompt={card[1]} answer={card[2]} />
             ))}
         </div>
@@ -81,11 +61,17 @@ function Home({initialProps}) {
   )
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   const initialProps = [];
   var prompts = ['What is the capital of the United States?',
               'What is the meaning of life?',
               'How to calculate the area of a circle?'];
+
+  // console.log(context.query.prompt);
+
+  if (typeof context.query.prompt !== 'undefined') {
+    prompts.push([context.query.prompt]);
+  }
 
   for (let i = 0; i < prompts.length; i++) {
     const data = {
