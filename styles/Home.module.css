@@ -90,7 +90,14 @@
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 300px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* this adds the "card" effect */
+  max-width: 80%;
+}
+
+.cardBody{
+  padding: 16px;
+  text-align: center;
+  background-color: #f1f1f1;
 }
 
 .card:hover,
@@ -107,7 +114,7 @@
 
 .card p {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   line-height: 1.5;
 }
 

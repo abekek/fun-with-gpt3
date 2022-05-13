@@ -42,7 +42,6 @@ function Home() {
   function handleSubmit(e) {
     e.preventDefault();
     setCardList(cardList.concat([[newPrompt, results.text]]));
-    console.log(cardList);
   }
 
   return (
@@ -71,18 +70,18 @@ function Home() {
           <button type="submit">Submit</button>
         </form>
 
-        {isLoading ? (<div>Loading...</div>) : (
-          // <div className="cards" id="cards">
-          //   {results.map((card) => (
-          //       <Card key={card[0]} prompt={card[1]} answer={card[2]} />
-          //   ))}</div>
-          <span>{results.text}</span>
-            )}
+        {/* {isLoading ? (<div>Loading...</div>) : 
+          (<p>
+            {results.text}
+          </p>)} */}
 
-          <div className="cards" id="cards">
+        {cardList.length > 0 ? (
+          <div>
+            <h2 type="prompt_text">Responses</h2>
             {cardList.map((card) =>(
               <Card key={card[0]} prompt={card[0]} answer={card[1]} />
-          ))}</div>
+            )).reverse()}
+          </div>) : (<div><h2>No prompts generated yet</h2></div>)}
       </main>
     </div>
   )
