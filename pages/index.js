@@ -5,24 +5,44 @@ import React from 'react';
 import Card from '../components/Card';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import ReactDOM from "react-dom";
 
-function Home({initialProps}) {
+
+function Home() {
   const router = useRouter();
   const [newPrompt, setPrompt] = React.useState();
-  const [results, setResults] = React.useState(initialProps);
-  // const [isLoading, setIsLoading] = React.useState(false)
+  const [results, setResults] = React.useState({text: ''});
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [cardList, setCardList] = React.useState([]);
+
   const updatePrompt = e => setPrompt(e.target.value);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if(newPrompt){
+        setIsLoading(true);
+        const res = await fetch("/api/gpt3", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
+          },
+          body: JSON.stringify({
+            prompt: newPrompt,
+          }),
+        });
+        const data = await res.json();
+        setResults(data);
+        setIsLoading(false);
+      }};
+
+    fetchData();
+  }, [newPrompt]);
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(newPrompt);
-    // callAPI();
-    // initialProps.push(['evnecjwj4r32r23r32', newPrompt, 'hello']);
-    refreshData();
-  }
-
-  const refreshData = () => {
-    router.replace('/?prompt='+newPrompt);
+    setCardList(cardList.concat([[newPrompt, results.text]]));
+    console.log(cardList);
   }
 
   return (
@@ -51,52 +71,21 @@ function Home({initialProps}) {
           <button type="submit">Submit</button>
         </form>
 
-        <div className="cards" id="cards">
-            {initialProps.map((card) => (
-                <Card key={card[0]} prompt={card[1]} answer={card[2]} />
-            ))}
-        </div>
+        {isLoading ? (<div>Loading...</div>) : (
+          // <div className="cards" id="cards">
+          //   {results.map((card) => (
+          //       <Card key={card[0]} prompt={card[1]} answer={card[2]} />
+          //   ))}</div>
+          <span>{results.text}</span>
+            )}
+
+          <div className="cards" id="cards">
+            {cardList.map((card) =>(
+              <Card key={card[0]} prompt={card[0]} answer={card[1]} />
+          ))}</div>
       </main>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  const initialProps = [];
-  var prompts = ['What is the capital of the United States?',
-              'What is the meaning of life?',
-              'How to calculate the area of a circle?'];
-
-  // console.log(context.query.prompt);
-
-  if (typeof context.query.prompt !== 'undefined') {
-    prompts.push([context.query.prompt]);
-  }
-
-  for (let i = 0; i < prompts.length; i++) {
-    const data = {
-      prompt: prompts[i],
-      temperature: 0.5,
-      max_tokens: 64,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-    };
-
-    const response = await fetch("https://api.openai.com/v1/engines/text-curie-001/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_SECRET}`,
-      },
-      body: JSON.stringify(data),
-    });
-
-    const res = await response.json();
-    initialProps.push([res.id, data.prompt, res.choices[0].text]);
-  }
-
-  return {props: {initialProps}}
 }
 
 export default Home;
