@@ -5,11 +5,9 @@ import React from 'react';
 import Card from '../components/Card';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import ReactDOM from "react-dom";
 
 
 function Home() {
-  const router = useRouter();
   const [newPrompt, setPrompt] = React.useState();
   const [results, setResults] = React.useState({text: ''});
   const [isLoading, setIsLoading] = React.useState(false);
@@ -76,12 +74,12 @@ function Home() {
           </p>)} */}
 
         {cardList.length > 0 ? (
-          <div>
-            <h2 type="prompt_text">Responses</h2>
+          <div className={styles.cardList}>
+            <h2 className={styles.cardListTitle}>Responses</h2>
             {cardList.map((card) =>(
               <Card key={card[0]} prompt={card[0]} answer={card[1]} />
             )).reverse()}
-          </div>) : (<div><h2>No prompts generated yet</h2></div>)}
+          </div>) : (<div><h2 className={styles.cardListTitle}>No prompts generated yet</h2></div>)}
       </main>
     </div>
   )
