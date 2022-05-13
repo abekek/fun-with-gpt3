@@ -5,7 +5,12 @@
 
 ## Getting Started
 
-First, run the development server:
+Firstly, add the OpenAI API public key to `.env.local`:
+```
+OPENAI_SECRET=<YOUR_API_KEY>
+```
+
+Secondly, run the development server:
 
 ```bash
 npm run dev
