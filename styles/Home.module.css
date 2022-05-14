@@ -137,6 +137,16 @@
   margin-left: 0.5rem;
 }
 
+.selectTokens {
+  border-radius: 5px;
+  border: 1px solid #eaeaea;
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
