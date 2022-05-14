@@ -13,6 +13,7 @@ function Home() {
   const [isLoading, setIsLoading] = React.useState(false);
   // const [tokens, setTokens] = React.useState(50);
   const [cardList, setCardList] = React.useState([]);
+  const [id, setId] = React.useState(0);
   const [gptParams, setGptParams] = React.useState({
     prompt: '',
     maxTokens: 50,
@@ -47,7 +48,8 @@ function Home() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    setCardList(cardList.concat([[gptParams.prompt, results.text]]));
+    setCardList(cardList.concat([[id, gptParams.prompt, results.text]]));
+    setId(id + 1);
   }
 
   return (
@@ -94,7 +96,7 @@ function Home() {
           <div className={styles.cardList}>
             <h2 className={styles.cardListTitle}>Responses</h2>
             {cardList.map((card) =>(
-              <Card key={card[0]} prompt={card[0]} answer={card[1]} />
+              <Card key={card[0]} prompt={card[1]} answer={card[2]} />
             )).reverse()}
           </div>) : (<div><h2 className={styles.cardListTitle}>No prompts generated yet</h2></div>)}
       </main>
